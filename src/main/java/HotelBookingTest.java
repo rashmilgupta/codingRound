@@ -1,16 +1,21 @@
-import com.sun.javafx.PlatformUtil;
-import org.openqa.selenium.WebDriver;
+
+
+import org.junit.After;
+import org.junit.Before;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
 import org.openqa.selenium.support.ui.Select;
-import org.testng.annotations.Test;
 
-public class HotelBookingTest {
 
-    WebDriver driver = new ChromeDriver();
+public class HotelBookingTest  extends TestBase{
 
-    @FindBy(linkText = "Hotels")
+
+
+    @FindBy(xpath = "//a[text()='Hotels']")
     private WebElement hotelLink;
 
     @FindBy(id = "Tags")
@@ -21,33 +26,46 @@ public class HotelBookingTest {
 
     @FindBy(id = "travellersOnhome")
     private WebElement travellerSelection;
+    
+    
+    
 
-    @Test
-    public void shouldBeAbleToSearchForHotels() {
-        setDriverPath();
+/** for using FindBy annotation we need to first initialize the webelements using PAgeFactory */
+	@Before
+	public void setup(){
+    	
+		
+		initializeDriver();
+		PageFactory.initElements(driver, this);
+	}
 
-        driver.get("https://www.cleartrip.com/");
-        hotelLink.click();
 
+    @org.junit.Test
+    public void shouldBeAbleToSearchForHotels() throws InterruptedException {
+    	
+    	hotelLink.click();
+        if(WaitUntilWebElementIsVisible(localityTextBox)){
         localityTextBox.sendKeys("Indiranagar, Bangalore");
-
-        new Select(travellerSelection).selectByVisibleText("1 room, 2 adults");
+        
+        }
+        
+        waitAndClickElement(driver.findElement(By.xpath("//a[text()='Indiranagar, Bangalore, Karnataka, India']")));
+       
+        
+        new Select(travellerSelection).selectByVisibleText("1 room, 1 adult");
+      
         searchButton.click();
+      
+      
+        
 
-        driver.quit();
+     
 
     }
 
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
+    @After
+    public void tearDown() {
+ 	   driver.quit();
     }
 
 }
