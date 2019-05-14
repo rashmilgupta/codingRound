@@ -1,51 +1,49 @@
-import com.sun.javafx.PlatformUtil;
+
+
+import org.junit.After;
+import org.junit.Before;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+
+import org.openqa.selenium.WebElement;
+
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
-public class SignInTest {
+/** SignIN test to verify the error present in the modal window.Here we are using inheritance so as to get the properties of TestBase class */
 
-    WebDriver driver = new ChromeDriver();
+public class SignInTest  extends TestBase{
 
-    @Test
-    public void shouldThrowAnErrorIfSignInDetailsAreMissing() {
+ /** Before annotation will always execute before each and every test so here before our test method before will initialize the driver and load the url.*/
+@Before
+public void setup(){
+	initializeDriver();
+}
 
-        setDriverPath();
+    @org.junit.Test
+    public void shouldThrowAnErrorIfSignInDetailsAreMissing() throws InterruptedException  {
 
-        driver.get("https://www.cleartrip.com/");
-        waitFor(2000);
-
+       
+       
         driver.findElement(By.linkText("Your trips")).click();
         driver.findElement(By.id("SignIn")).click();
-
-        driver.findElement(By.id("signInButton")).click();
-
-        String errors1 = driver.findElement(By.id("errors1")).getText();
-        Assert.assertTrue(errors1.contains("There were errors in your submission"));
-        driver.quit();
+        
+       
+       //Switiching to the frame
+    	 driver.switchTo().frame("modal_window");
+      
+        waitAndClickElement(driver.findElement(By.id("signInButton")));
+       
+        WebElement errorsMessageElement = driver.findElement(By.xpath("//div[@id='errors1']/span"));
+        WaitUntilWebElementIsVisible(errorsMessageElement);
+     
+        Assert.assertEquals("There were errors in your submission",errorsMessageElement.getText());
+     
     }
 
-    private void waitFor(int durationInMilliSeconds) {
-        try {
-            Thread.sleep(durationInMilliSeconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
-    }
+   /** It will quit all the active driver. */
+    @After
+   public void tearDown() {
+	   driver.quit();
+   }
 
 
 }
